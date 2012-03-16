@@ -26,14 +26,13 @@ stimulator.train_frequency #Pulse frequency, in Hz
 stimulator.train_pulses #Number of pulses in the train
 ```
 
-Uses threading.
+## Other information
 
-Tested with Bistim for single-pulse only. Not tested with Rapid2.
+* Tested with Bistim for single-pulse only. Not tested with Rapid2.
 
-[Instructions to make a serial cable](http://www.psych.usyd.edu.au/tmslab/downloads/SerialCable_and_Rapid2Toolbox_v1.pdf)
+* [Instructions to make a serial cable](http://www.psych.usyd.edu.au/tmslab/downloads/SerialCable_and_Rapid2Toolbox_v1.pdf)
 
-### Information not in the pdfs
-
+* Information not in the pdfs
 
 <table>
 <tr><td colspan="10">Host Command</td></tr>

@@ -2,9 +2,9 @@
 
 ## Instructions.
 Be sure you have pyserial installed.
-~~~ python
+```python
 import MagstimInterface
-~~~
+```
 Uses threading.
 
 Tested with Bistim for single-pulse only. Not tested with Rapid2.

@@ -12,12 +12,12 @@ Tested with Bistim for single-pulse only. Not tested with Rapid2.
 
 
 <table>
-<tr><td>Host Command</td></tr>
-<tr><td>D7</td><td>D6</td><td>D5</td><td>D4</td><td>D3</td><td>D2</td><td>D1</td><td>D0</td><td>Hex</td><td>Description</td></tr>
+<tr><td span=10>Host Command</td></tr>
+<tr><th>D7</th><th>D6</th><th>D5</th><th>D4</th><th>D3</th><th>D2</th><th>D1</th><th>D0</th><th>Hex</th><th>Description</th></tr>
 <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>58</td><td>Command</td></tr>
 <tr><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>40</td><td>Padding Byte</td></tr>
 <tr><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>67</td><td>CRC</td></tr>
-<tr><td>Base Controller Response</td></tr>
+<tr><td span=10>Base Controller Response</td></tr>
 <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>58</td><td>Command Acknowledge</td></tr>
 <tr><td>N</td><td>N</td><td>N</td><td>N</td><td>N</td><td>N</td><td>N</td><td>N</td><td>NN</td><td>Instrument Status</td></tr>
 <tr><td>N</td><td>N</td><td>N</td><td>N</td><td>N</td><td>N</td><td>N</td><td>N</td><td>NN</td><td>Current System Mode (see section below)</td></tr>
@@ -27,7 +27,7 @@ Tested with Bistim for single-pulse only. Not tested with Rapid2.
 Possible Return Values of Current System Mode:
 
 <table>
-<tr><td>Value (hexadecimal)</td><td>Description</td></tr>
+<tr><th>Value (hexadecimal)</th><th>Description</th></tr>
 <tr><td>30</td><td>System operating as a single stimulator.</td></tr>
 <tr><td>31</td><td>System operating as master in simultaneous firing mode.</td></tr>
 <tr><td>32</td><td>System operating as master in normal BISTIM mode with low resolution time setting mode active.</td></tr>

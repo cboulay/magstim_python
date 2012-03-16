@@ -1,6 +1,6 @@
 #Python interface for Magstim TMS devices
 
-## Instructions.
+## Instructions
 Be sure you have pyserial installed.
 
 ```python
@@ -32,7 +32,9 @@ stimulator.train_pulses #Number of pulses in the train
 
 * [Instructions to make a serial cable](http://www.psych.usyd.edu.au/tmslab/downloads/SerialCable_and_Rapid2Toolbox_v1.pdf)
 
-* Information not in the pdfs
+* Uses my [caio module](https://github.com/cboulay/caio-python)
+
+* Information not in the pdfs:
 
 <table>
 <tr><td colspan="10">Host Command</td></tr>

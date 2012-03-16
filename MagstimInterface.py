@@ -23,9 +23,9 @@ class MagThread(threading.Thread):
 			cmd_string=''
 			cmd_hex=''
 			data_hex=''
-			try:#Get a message form the queue
+			try:#Get a message from the queue
 				msg = self.queue.get(True, 0.5)
-			except:#Empty Queue. Do the default action.
+			except:#Queue is empty -> Do the default action.
 				cmd_string='J@u'
 				if self.stimulator.isinstance(Rapid2): cmd_string='\@c'
 			else:#We got a message

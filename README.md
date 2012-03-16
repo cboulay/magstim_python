@@ -2,8 +2,29 @@
 
 ## Instructions.
 Be sure you have pyserial installed.
-```python
+```Python
+
 import MagstimInterface
+stimClass={0:MagstimInterface.Magstim, 1:MagstimInterface.Bistim, 2:MagstimInterface.Rapid2}.get(1)
+trigType={0:'caio', 1:'audio', 2:'serial'}.get(2)
+#caio and audio are other modules for outputting a trigger pulse.
+serPort='COM4'
+stimulator=stimClass(port=serPort, triggerType=trigType)
+stimulator.trigger()
+stimulator.stim_ready #read-only
+stimulator.stim_remocon #read-write. Pass True to enable. Should be enabled by default on stimulator init.
+stimulator.stim_armed #rw. Pass True to arm. Should be enabled by default on stimulator init.
+stimulator.stim_intensity #rw. Pass int value to change stimulator intensity.
+#Bistim-only
+stimulator.stim_intensityb
+stimulator.ISI
+stimulator.hr_mode #Whether or not bi-stim is in high-res mode. High-res automatic if ISI is decimal.
+stimulator.master_mode #read-only. This device is controlling timing.
+#Rapid2 only
+stimulator.train_duration #How long the stimulus train lasts in secs
+stimulator.train_frequency #Pulse frequency, in Hz
+stimulator.train_pulses #Number of pulses in the train
+
 ```
 Uses threading.
 

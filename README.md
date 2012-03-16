@@ -2,8 +2,8 @@
 
 ## Instructions.
 Be sure you have pyserial installed.
-```Python
 
+```python
 import MagstimInterface
 stimClass={0:MagstimInterface.Magstim, 1:MagstimInterface.Bistim, 2:MagstimInterface.Rapid2}.get(1)
 trigType={0:'caio', 1:'audio', 2:'serial'}.get(2)
@@ -24,8 +24,8 @@ stimulator.master_mode #read-only. This device is controlling timing.
 stimulator.train_duration #How long the stimulus train lasts in secs
 stimulator.train_frequency #Pulse frequency, in Hz
 stimulator.train_pulses #Number of pulses in the train
-
 ```
+
 Uses threading.
 
 Tested with Bistim for single-pulse only. Not tested with Rapid2.

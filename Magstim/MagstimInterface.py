@@ -62,7 +62,7 @@ class MagThread(threading.Thread):
 				elif key=='shutdown': return
 			finally:
 				self.stimulator._ser_send_command(cmd_string=cmd_string, cmd_hex=cmd_hex, data_hex=data_hex) #Process the input and send the command
-				self.queue.task_done()#signals to queue job is done
+				self.queue.task_done()#signals to queue job is done. Maybe the stimulator object should do this?
 				
 #FYI: converting between hex/ascii/bits, often with int in between
 #('6E' is hex, 'n' is ascii, and '01101110' is a bit-string)
@@ -104,7 +104,7 @@ class MagThread(threading.Thread):
 ### response is parsed to update hidden instance attribute value.
 #################################################################
 class Magstim(object):
-	def __init__(self, port='COM4', triggerType='serial'):
+	def __init__(self, port='COM4', trigbox=None):
 		"""
 		A Magstim (Rapid2 or Bistim) class instance
 		allows interaction with a magstim stimulator 
@@ -129,25 +129,25 @@ class Magstim(object):
 		self._ser=serial.Serial(port, timeout=0.1)#initialize the serial port
 		#The serial port is read with s=ser.read(n_bytes) and written to with ...
 		
-		if triggerType=='audio':
-			import AudioStim
-			self.trigbox=AudioStim.TriggerBox()
-		elif triggerType=='caio':
-			import CaioStim
-			self.trigbox=CaioStim.TriggerBox()
-		self.triggerType=triggerType
+		#If no triggerBox is provided, assume we are using the serial port.
+		if trigbox:
+			self.trigbox=trigbox
+			#if triggerType=='audio':
+			#	import AudioStim
+			#	self.trigbox=AudioStim.TriggerBox()
 		
 		#Set thread
 		self.q=Queue.Queue()
-		#Queue is a message handler.
-		self.thread = MagThread(self.q, self) #Pass message handler and context.
-		self.thread.setDaemon(True) #Dunno, always there in the thread examples.
-		self.thread.start() #Kicks off the run(). The thread will check parameters every 0.5 seconds unless another message is passed.
 		
-		#Initialize the stimulator
+		#Pass some jobs to the queue to Initialize the stimulator
 		self.q.put({'remocon': True}) #Enable remote control.
 		self.q.put({'ignore_safety': 1}) #
 		self.q.put({'arm': True}) #Arm the stimulator
+		
+		#Start the thread to handle the queue.
+		self.thread = MagThread(self.q, self) #Pass message handler and context.
+		self.thread.setDaemon(True) #Dunno, always there in the thread examples.
+		self.thread.start() #Kicks off the run(). The thread will check parameters every 0.5 seconds unless another message is passed.
 		
 		#If this is going to be subclassed, then the subclass MUST define its 
 		#specific instance variables before calling the super init, otherwise
@@ -198,7 +198,7 @@ class Magstim(object):
 	# TRIGGER #
 	###########
 	def trigger(self):
-		if self.triggerType=='serial': self.q.put({'trigger': 0}) #Can use serial port to trigger magstim but probably not desired because it has an indeterminate lag.
+		if not self.trigbox: self.q.put({'trigger': 0}) #Can use serial port to trigger magstim but probably not desired because it has an indeterminate lag.
 		else: self.trigbox.trigger() #Tell the trigger box to trigger immediately. No messaging.
 		self._stim_ready = False #Assume the stimulator is not ready because we just triggered.
 

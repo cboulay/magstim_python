@@ -26,8 +26,7 @@ class MagThread(threading.Thread):
 			try:#Get a message from the queue
 				msg = self.queue.get(True, 0.5)
 			except:#Queue is empty -> Do the default action.
-				cmd_string='J@u'
-				if self.stimulator.isinstance(Rapid2): cmd_string='\@c'
+				self.queue.put({'default': 0})
 			else:#We got a message
 				key = msg.keys()[0]
 				value = msg[key]
@@ -38,6 +37,9 @@ class MagThread(threading.Thread):
 					cmd_string='@'+str(value).zfill(3)
 					cmd_string=cmd_string+_crc(cmd_string)
 				elif key=='ignore_safety': cmd_string='b@]'
+				elif key=='default': 
+					cmd_string='J@u'
+					if isinstance(self.stimulator,Rapid2): cmd_string='\@c'
 				
 				#Bistim specific messages
 				elif key=='stimb':
@@ -60,7 +62,7 @@ class MagThread(threading.Thread):
 					cmd_string='D'+str(value).zfill(5)
 					cmd_string=cmd_string+_crc(cmd_string)
 				elif key=='shutdown': return
-			finally:
+				
 				self.stimulator._ser_send_command(cmd_string=cmd_string, cmd_hex=cmd_hex, data_hex=data_hex) #Process the input and send the command
 				self.queue.task_done()#signals to queue job is done. Maybe the stimulator object should do this?
 				

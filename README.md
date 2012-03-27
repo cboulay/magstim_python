@@ -4,12 +4,15 @@
 Be sure you have pyserial installed.
 
 ```python
-import MagstimInterface
-stimClass={0:MagstimInterface.Magstim, 1:MagstimInterface.Bistim, 2:MagstimInterface.Rapid2}.get(1)
-trigType={0:'caio', 1:'audio', 2:'serial'}.get(2)
-#caio and audio are other modules for outputting a trigger pulse.
+
+#Import your trigger box. caio and audio are other modules for outputting a trigger pulse.
+#from Caio.CaioStim import TriggerBox #This is not necessary if using serial trigger.
+#Define your serial port
 serPort='COM4'
-stimulator=stimClass(port=serPort, triggerType=trigType)
+#Import your stimulator class
+from Magstim.MagstimInterface import Magstim #Other possibilities include Bistim and Rapid2
+#stimulator=Magstim(port=serPort, trigbox=TriggerBox()) #Use this if defining an external trigger box.
+stimulator=Magstim(port=serPort)
 stimulator.trigger()
 stimulator.stim_ready #read-only
 stimulator.stim_remocon #read-write. Pass True to enable. Should be enabled by default on stimulator init.

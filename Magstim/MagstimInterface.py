@@ -112,9 +112,9 @@ class Magstim(object):
 		allows interaction with a magstim stimulator 
 		via serial port.
 		Methods:
-			magstim_instance.trigger(type='type')
-				If 'type' is 'specific' then we will use the serial port.
-				If 'type' is anything else then we will use the super implementation of trigger.
+			magstim_instance.trigger()
+				Sends a trigger through the trigbox.
+				If trigbox is None, then it uses the serial port.
 				
 		Properties:
 			stim_ready - True if the stimulator reports ready, False otherwise. r

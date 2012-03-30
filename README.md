@@ -5,14 +5,17 @@ Be sure you have pyserial installed.
 
 ```python
 
-#Import your trigger box. caio and audio are other modules for outputting a trigger pulse.
-#from Caio.CaioStim import TriggerBox #This is not necessary if using serial trigger.
-#Define your serial port
-serPort='COM4'
 #Import your stimulator class
 from Magstim.MagstimInterface import Magstim #Other possibilities include Bistim and Rapid2
-#stimulator=Magstim(port=serPort, trigbox=TriggerBox()) #Use this if defining an external trigger box.
+#Define your serial port
+serPort='COM4'
+#If using an additional device to do the triggering (highly recommended), try this
+from Caio.TriggerBox import TTL
+stimulator=Magstim(port=serPort, trigbox=TTL())
+#Else if using the serial port to trigger (note: indeterminate lag/jitter!)
 stimulator=Magstim(port=serPort)
+
+#The following functions and attributes are now available to you.
 stimulator.trigger()
 stimulator.stim_ready #read-only
 stimulator.stim_remocon #read-write. Pass True to enable. Should be enabled by default on stimulator init.
@@ -30,6 +33,8 @@ stimulator.train_pulses #Number of pulses in the train
 ```
 
 ## Other information
+
+* You will not receive an error if there is no magstim device connected, but the stimulator parameters should return False
 
 * Tested with Bistim for single-pulse only. Not tested with Rapid2.
 

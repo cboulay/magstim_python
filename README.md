@@ -16,13 +16,13 @@ stimulator=Magstim(port=serPort, trigbox=TTL())
 stimulator=Magstim(port=serPort)
 
 #The following functions and attributes are now available to you.
+stimulator.armed #rw. Pass True to arm before triggering.
 stimulator.trigger()
-stimulator.stim_ready #read-only
-stimulator.stim_remocon #read-write. Pass True to enable. Should be enabled by default on stimulator init.
-stimulator.stim_armed #rw. Pass True to arm. Should be enabled by default on stimulator init.
-stimulator.stim_intensity #rw. Pass int value to change stimulator intensity.
+stimulator.ready #read-only
+stimulator.remocon #read-write. Pass True to enable. Should be enabled by default on stimulator init.
+stimulator.intensity #rw. Pass int value to change stimulator intensity.
 #Bistim-only
-stimulator.stim_intensityb
+stimulator.intensityb
 stimulator.ISI
 stimulator.hr_mode #Whether or not bi-stim is in high-res mode. High-res automatic if ISI is decimal.
 stimulator.master_mode #read-only. This device is controlling timing.

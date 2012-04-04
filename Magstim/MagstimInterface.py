@@ -117,9 +117,9 @@ class Magstim(object):
 				If trigbox is None, then it uses the serial port.
 				
 		Properties:
-			stim_ready - True if the stimulator reports ready, False otherwise. r
-			stim_armed - True if the stimulator reports armed, False otherwise. r
-			stim_intensity - The value of the stimulus intensity. rw
+			ready - True if the stimulator reports ready, False otherwise. r
+			armed - True if the stimulator reports armed, False otherwise. r
+			intensity - The value of the stimulus intensity. rw
 			remote_enabled - rw
 		"""
 		self._stim_remocon= False
@@ -131,25 +131,20 @@ class Magstim(object):
 		self._ser=serial.Serial(port, timeout=0.1)#initialize the serial port
 		#The serial port is read with s=ser.read(n_bytes) and written to with ...
 		
-		#If no triggerBox is provided, assume we are using the serial port.
-		if trigbox:
-			self.trigbox=trigbox
-			#if triggerType=='audio':
-			#	import AudioStim
-			#	self.trigbox=AudioStim.TriggerBox()
+		self.trigbox=trigbox
 		
 		#Set thread
 		self.q=Queue.Queue()
-		
-		#Pass some jobs to the queue to Initialize the stimulator
-		self.q.put({'remocon': True}) #Enable remote control.
-		self.q.put({'ignore_safety': 1}) #
-		self.q.put({'arm': True}) #Arm the stimulator
 		
 		#Start the thread to handle the queue.
 		self.thread = MagThread(self.q, self) #Pass message handler and context.
 		self.thread.setDaemon(True) #Dunno, always there in the thread examples.
 		self.thread.start() #Kicks off the run(). The thread will check parameters every 0.5 seconds unless another message is passed.
+		
+		time.sleep(0.1)
+		self.remocon=True
+		time.sleep(0.1)
+		self.q.put({'ignore_safety': 1}) #
 		
 		#If this is going to be subclassed, then the subclass MUST define its 
 		#specific instance variables before calling the super init, otherwise
@@ -166,17 +161,17 @@ class Magstim(object):
 	#automatically requests the stimulator parameters if no other command is waiting.
 	def get_stimr(self): return self._stim_ready
 	def set_stimr(self, value): pass #read-only
-	stim_ready = property(get_stimr, set_stimr)
+	ready = property(get_stimr, set_stimr)
 
 	# STIMULATOR ARMED #
 	def get_stimarm(self): return self._stim_armed
 	def set_stimarm(self, value): self.q.put({'arm': value}) #Tell the thread to arm/disarm the device
-	stim_armed = property(get_stimarm, set_stimarm)
+	armed = property(get_stimarm, set_stimarm)
 	
 	# STIMULATOR REMOTE CONTROL #
 	def get_stimremocon(self): return self._stim_remocon
 	def set_stimremocon(self, value): self.q.put({'remocon': value}) #Tell the thread to enable/disable remote control.
-	stim_remocon = property(get_stimremocon, set_stimremocon)
+	remocon = property(get_stimremocon, set_stimremocon)
 
 	# STIMULUS INTENSITY #
 	def get_stimi(self): return self._stim_intensity
@@ -185,7 +180,7 @@ class Magstim(object):
 		value=min(value,100)
 		value=max(value,0)
 		self.q.put({'stimi': value})#Tell the tread to set the stimulator intensity
-	stim_intensity = property(get_stimi, set_stimi)
+	intensity = property(get_stimi, set_stimi)
 	
 	#FYI
 	#See http://docs.python.org/library/functions.html#property
@@ -208,7 +203,7 @@ class Magstim(object):
 	# SERIAL COMMANDS #
 	###################
 		
-	def _ser_send_command(self, cmd_string='', cmd_hex='4A', data_hex='40', flush=False):
+	def _ser_send_command(self, cmd_string=None, cmd_hex='4A', data_hex='40', flush=False):
 		if not cmd_string: #Though I don't use the hex, they can be used instead.
 			cmd_string=binascii.unhexlify(cmd_hex) + binascii.unhexlify(data_hex)
 			cmd_string=cmd_string+_crc(cmd_string)
@@ -217,7 +212,7 @@ class Magstim(object):
 		if flush: self._ser.flushOutput()#Should we clear the output buffer? Not sure why we would.
 		self._ser.write(cmd_string)#Write to serial port
 		time.sleep(0.05)#Introduce a delay to get a response.
-		self._ser_get_response
+		self._ser_get_response()
 		
 	def _ser_get_response(self):
 		#Read from the serial port.
@@ -227,16 +222,18 @@ class Magstim(object):
 		#fake_response is J,status,powerA,powerB,pulseint
 		#status will be 10001110 = int 142 = 8e = Ž
 		#response='JŽ050000000'
+		#response='J\x89030030000v'
 		#/TESTING#
 		
 		#All responses contain instrument status
 		if bool(nchars):
-			status=ord(response[1])
-			#From MSB to LSB: Remocon, Error type, Error present, Replace coil, Coil present, Ready, Armed, Standby
-			#standby=bool(status & 0x1) #(LSB). No point in saving this because it isn't used for anything.
-			self._stim_armed=bool(status>>1 & 0x1) #2nd bit
-			self._stim_ready=bool(status>>2 & 0x1) #3rd bit
-			self._stim_remocon=bool(status>>7 & 0x1) #MSB. No point in saving this because it isn't used for anything.
+			if nchars>1:
+				status=ord(response[1])
+				#From MSB to LSB: Remocon, Error type, Error present, Replace coil, Coil present, Ready, Armed, Standby
+				#standby=bool(status & 0x1) #(LSB). No point in saving this because it isn't used for anything.
+				self._stim_armed=bool(status>>1 & 0x1) #2nd bit
+				self._stim_ready=bool(status>>2 & 0x1) #3rd bit
+				self._stim_remocon=bool(status>>7 & 0x1) #MSB. No point in saving this because it isn't used for anything.
 		
 			#If the response's first character is hex 4A, then this is a parameter response
 			if response[0]=='J' or response[0]=='\\':
@@ -267,7 +264,7 @@ class Bistim(Magstim):
 		value=min(value,100)
 		value=max(value,1)#Stim intensity of 0 screws up the threading.
 		self.q.put({'stimb': value})#Tell the tread to set the stimulator intensity
-	stim_intensityb = property(get_stimb, set_stimb)
+	intensityb = property(get_stimb, set_stimb)
 	
 	# Double-pulse ISI #
 	def get_isi(self): return self._ISI

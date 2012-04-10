@@ -17,6 +17,7 @@ class MagThread(threading.Thread):
 		threading.Thread.__init__(self)
 		self.queue = queue
 		self.stimulator = stimulator
+		self.alternate_default = True
 		
 	def run(self):
 		while True:
@@ -26,7 +27,12 @@ class MagThread(threading.Thread):
 			try:#Get a message from the queue
 				msg = self.queue.get(True, 0.5)
 			except:#Queue is empty -> Do the default action.
-				self.queue.put({'default': 0})
+				if isinstance(self.stimulator,Bistim) and self.alternate_default:
+					self.alternate_default = False
+					self.queue.put({'bistim_mode': 0})
+				else:
+					self.alternate_default = True
+					self.queue.put({'default': 0})
 			else:#We got a message
 				key = msg.keys()[0]
 				value = msg[key]
@@ -164,7 +170,7 @@ class Magstim(object):
 	ready = property(get_stimr, set_stimr)
 
 	# STIMULATOR ARMED #
-	def get_stimarm(self): return self._stim_armed
+	def get_stimarm(self): return self._stim_armed or self._stim_ready
 	def set_stimarm(self, value): self.q.put({'arm': value}) #Tell the thread to arm/disarm the device
 	armed = property(get_stimarm, set_stimarm)
 	
@@ -222,18 +228,22 @@ class Magstim(object):
 		#fake_response is J,status,powerA,powerB,pulseint
 		#status will be 10001110 = int 142 = 8e = 
 		#response='J050000000'
-		#response='J\x89030030000v'
+		#response='J\x89030030010u'
 		#/TESTING#
 		
 		#All responses contain instrument status
 		if bool(nchars):
 			if nchars>1:
-				status=ord(response[1])
 				#From MSB to LSB: Remocon, Error type, Error present, Replace coil, Coil present, Ready, Armed, Standby
+				#.e.g '\t' string == '09' hex == 9 int == '00001001' or, remocon and in standby.
+				#e.g. '\x89' string == '89' hex == 137 int ==  '10001001' or, remocon, coil present, and in standby
+				#e.g. \x8c' string == '8c' hex == 140 int ==   '10001100' or remocon, coil present, and ready
+				#This last example was taken when the coil was armed... so I'm not sure how to get that second bit positive.
+				status=ord(response[1])
 				#standby=bool(status & 0x1) #(LSB). No point in saving this because it isn't used for anything.
 				self._stim_armed=bool(status>>1 & 0x1) #2nd bit
 				self._stim_ready=bool(status>>2 & 0x1) #3rd bit
-				self._stim_remocon=bool(status>>7 & 0x1) #MSB. No point in saving this because it isn't used for anything.
+				self._stim_remocon=bool(status>>7 & 0x1) #MSB. Not much point in saving this because it isn't used for anything.
 		
 			#If the response's first character is hex 4A, then this is a parameter response
 			if response[0]=='J' or response[0]=='\\':
@@ -258,7 +268,8 @@ class Bistim(Magstim):
 		Magstim.__init__(self, port=port, trigbox=trigbox)#Call the super init (which also inits the thread)
 		
 	# STIMULUS INTENSITY  B #
-	def get_stimb(self): return self._stim_intensityb
+	def get_stimb(self):
+		return self._stim_intensityb
 	def set_stimb(self, value): #Convert the value to the nearest int between 0 and 100
 		value=int(round(value))
 		value=min(value,100)
@@ -267,16 +278,17 @@ class Bistim(Magstim):
 	intensityb = property(get_stimb, set_stimb)
 	
 	# Double-pulse ISI #
-	def get_isi(self): return self._ISI
+	def get_isi(self):
+		return self._ISI
 	def set_isi(self, value):
 		#Sanity check the ISI
 		value=max(value,1)#TODO: What is the minimum ISI?
 		value=min(value,999)#TODO: What is the maximum ISI?
 		if (value % 1) > 0 :#If the ISI has a decimal value, be sure to set the stimulator to HR mode
-			if not self.hr_mode: self.q.put({'bistim_res': True})
+			self.hr_mode=True
 			self.q.put({'ISI': int(value*10)})
 		else:
-			if self.hr_mode: self.q.put({'bistim_res': False})
+			self.hr_mode=False
 			self.q.put({'ISI': int(value)})
 	ISI = property(get_isi, set_isi)
 	
@@ -285,13 +297,10 @@ class Bistim(Magstim):
 		return self._HR_mode
 	def set_hr_mode(self, value):
 		self.q.put({'bistim_res': value})
-		self.q.put({'bistim_mode': 0}) #Get an update from the device.
 	hr_mode = property(get_hr_mode, set_hr_mode)
 	
 	# MASTER MODE #
 	def get_master_mode(self):
-		#TODO: bistim_mode seems to be read-only. I need codes to set Master/Slave, IndExt/Sim/Internal triggering.
-		self.q.put({'bistim_mode': 0})
 		return self._master
 	def set_master_mode(self, value): pass #read-only
 	master_mode = property(get_master_mode, set_master_mode)
@@ -300,7 +309,8 @@ class Bistim(Magstim):
 	# Bistim-specific serial port commands #
 	########################################
 	def _parse_response(self, response):
-		#'J\t010010000\xfa'
+		#'J\t030030010\xf5'
+		#'X\t4j'
 		#Read the parts of the parameter response that are specific to Bistim
 		if response[0]=='J' or response[0]=='\\':
 			if len(response)>=7: self._stim_intensityb=int(response[5:8])

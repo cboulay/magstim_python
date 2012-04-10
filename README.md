@@ -6,12 +6,12 @@ Be sure you have pyserial installed.
 ```python
 
 #Import your stimulator class
-from Magstim.MagstimInterface import Magstim #Other possibilities include Bistim and Rapid2
+from Magstim.MagstimInterface import Magstim, Bistim, Rapid2
 #Define your serial port
-serPort='COM4'
+serPort='COM6'
 #If using an additional device to do the triggering (highly recommended), try this
 from Caio.TriggerBox import TTL
-stimulator=Magstim(port=serPort, trigbox=TTL())
+stimulator=Bistim(port=serPort, trigbox=TTL())
 #Else if using the serial port to trigger (note: indeterminate lag/jitter!)
 stimulator=Magstim(port=serPort)
 

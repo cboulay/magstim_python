@@ -290,7 +290,6 @@ class Bistim(Magstim):
 	
 	# MASTER MODE #
 	def get_master_mode(self):
-		#TODO: bistim_mode seems to be read-only. I need codes to set Master/Slave, IndExt/Sim/Internal triggering.
 		self.q.put({'bistim_mode': 0})
 		return self._master
 	def set_master_mode(self, value): pass #read-only
@@ -300,7 +299,6 @@ class Bistim(Magstim):
 	# Bistim-specific serial port commands #
 	########################################
 	def _parse_response(self, response):
-		#'J\t010010000\xfa'
 		#Read the parts of the parameter response that are specific to Bistim
 		if response[0]=='J' or response[0]=='\\':
 			if len(response)>=7: self._stim_intensityb=int(response[5:8])
@@ -319,12 +317,12 @@ class Bistim(Magstim):
 #!!!!! SEE THE PDF TO MAKE SURE YOUR STIMULUS PARAMETERS
 #!!!!! WILL YIELD EXPECTED RESULTS
 class Rapid2(Magstim):
-	def __init__(self, port='COM4', triggerbox=None):
+	def __init__(self, port='COM4', triggerType='serial'):
 		#Rapid2-specific instance variables.
 		self._train_dur = 0		#How long the stimulus train lasts
 		self._train_freq = 0	#Pulse frequency, in Hz
 		self._train_pulses = 0	#Number of pulses in the train
-		Magstim.__init__(self, port=port, triggerbox=triggerbox)#Call the super init (which also inits the thread)
+		Magstim.__init__(self, port=port, triggerType=triggerType)#Call the super init (which also inits the thread)
 		
 	# Train Duration #
 	def get_train_dur(self): return self._train_dur

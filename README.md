@@ -60,14 +60,14 @@ stimulator.train_pulses #Number of pulses in the train
 Possible Return Values of Current System Mode:
 
 <table>
-<tr><th>Value (hexadecimal)</th><th>Description</th></tr>
-<tr><td>30</td><td>System operating as a single stimulator.</td></tr>
-<tr><td>31</td><td>System operating as master in simultaneous firing mode.</td></tr>
-<tr><td>32</td><td>System operating as master in normal BISTIM mode with low resolution time setting mode active.</td></tr>
-<tr><td>33</td><td>System operating as master in BISTIM mode with independent external triggering for master and slave enabled.</td></tr>
-<tr><td>34</td><td>System operating as master in normal BISTIM mode with high resolution time setting mode active.</td></tr>
-<tr><td>51</td><td>System operating as slave in simultaneous firing mode.</td></tr>
-<tr><td>52</td><td>System operating as slave in normal BISTIM mode with low resolution time setting mode active.</td></tr>
-<tr><td>53</td><td>System operating as slave in BISTIM mode with independent external triggering for master and slave enabled.</td></tr>
-<tr><td>54</td><td>System operating as slave in normal BISTIM mode with high resolution time setting mode active.</td></tr>
+<tr><th>Value (hexadecimal)</th><th>Value (string)</th><th>Description</th></tr>
+<tr><td>30</td><td>0</td><td>System operating as a single stimulator.</td></tr>
+<tr><td>31</td><td>1</td><td>System operating as master in simultaneous firing mode.</td></tr>
+<tr><td>32</td><td>2</td><td>System operating as master in normal BISTIM mode with low resolution time setting mode active.</td></tr>
+<tr><td>33</td><td>3</td><td>System operating as master in BISTIM mode with independent external triggering for master and slave enabled.</td></tr>
+<tr><td>34</td><td>4</td><td>System operating as master in normal BISTIM mode with high resolution time setting mode active.</td></tr>
+<tr><td>51</td><td>Q</td><td>System operating as slave in simultaneous firing mode.</td></tr>
+<tr><td>52</td><td>R</td><td>System operating as slave in normal BISTIM mode with low resolution time setting mode active.</td></tr>
+<tr><td>53</td><td>S</td><td>System operating as slave in BISTIM mode with independent external triggering for master and slave enabled.</td></tr>
+<tr><td>54</td><td>T</td><td>System operating as slave in normal BISTIM mode with high resolution time setting mode active.</td></tr>
 </table>

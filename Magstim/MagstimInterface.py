@@ -150,7 +150,7 @@ class Magstim(object):
 		time.sleep(0.1)
 		self.remocon=True
 		time.sleep(0.1)
-		self.q.put({'ignore_safety': 1}) #
+		self.q.put({'ignore_safety': 1})
 		
 		#If this is going to be subclassed, then the subclass MUST define its 
 		#specific instance variables before calling the super init, otherwise

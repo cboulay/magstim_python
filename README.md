@@ -9,38 +9,41 @@ Be sure you have pyserial installed.
 from Magstim.MagstimInterface import Magstim, Bistim, Rapid2
 #Define your serial port
 serPort='COM6'
+
 #If using an additional device to do the triggering (highly recommended), try this
-from Caio.TriggerBox import TTL
+#This requires my caio module (see below)
+from Caio.TriggerBox import TTL 
 stimulator=Bistim(port=serPort, trigbox=TTL())
+
 #Else if using the serial port to trigger (note: indeterminate lag/jitter!)
-stimulator=Magstim(port=serPort)
+stimulator=Bistim(port=serPort)
 
 #The following functions and attributes are now available to you.
-stimulator.armed #rw. Pass True to arm before triggering.
+stimulator.armed #Read-Write. Set equal to True to arm. E.g., stimulator.armed = True
 stimulator.trigger()
-stimulator.ready #read-only
-stimulator.remocon #read-write. Pass True to enable. Should be enabled by default on stimulator init.
-stimulator.intensity #rw. Pass int value to change stimulator intensity.
+stimulator.ready #read-only. Returns whether or not the stimulator is ready. Note that Bistim does not support this feature.
+stimulator.remocon #read-write. Set to True to enable. Should be enabled by default on stimulator init.
+stimulator.intensity #read-write. Set equal to an int value to change stimulator intensity. e.g. stimulator.intensity = 30
 #Bistim-only
 stimulator.intensityb
-stimulator.ISI
-stimulator.hr_mode #Whether or not bi-stim is in high-res mode. High-res automatic if ISI is decimal.
+stimulator.ISI #
+stimulator.hr_mode #Whether or not bi-stim is in high-res mode. High-res set automatically if ISI has a decimal.
 stimulator.master_mode #read-only. This device is controlling timing.
 #Rapid2 only
-stimulator.train_duration #How long the stimulus train lasts in secs
+stimulator.train_duration #How long the stimulus train lasts in seconds
 stimulator.train_frequency #Pulse frequency, in Hz
 stimulator.train_pulses #Number of pulses in the train
 ```
 
 ## Other information
 
-* You will not receive an error if there is no magstim device connected, but the stimulator parameters should return False
+* You will not receive an error if there is no magstim device connected, but the stimulator attributes armed, ready, and remocon should all return False
 
-* Tested with Bistim for single-pulse only. Not tested with Rapid2.
+* Tested with Bistim only. Not tested with Rapid2.
 
 * [Instructions to make a serial cable](http://www.psych.usyd.edu.au/tmslab/downloads/SerialCable_and_Rapid2Toolbox_v1.pdf)
 
-* Uses my [caio module](https://github.com/cboulay/caio-python)
+* Triggering with an analog out device uses my [caio module](https://github.com/cboulay/caio-python) though you may devise your own.
 
 * Information not in the pdfs:
 

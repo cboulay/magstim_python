@@ -157,7 +157,7 @@ class Magstim(object):
 		#the thread will communicate with the stimulator, which will return
 		#a response, then reading the response will attempt to set instance
 		#variables that have yet to be set.
-		
+			
 	################################
 	# PROPERTY GETTERS AND SETTERS #
 	################################
@@ -267,6 +267,10 @@ class Bistim(Magstim):
 		self._master =			True #In Bistim mode and the device is being used to control the stim timing.
 		Magstim.__init__(self, port=port, trigbox=trigbox)#Call the super init (which also inits the thread)
 		
+	def __del__(self):
+		self.ISI = 0
+		self.intensityb = 0
+		
 	# STIMULUS INTENSITY  B #
 	def get_stimb(self):
 		return self._stim_intensityb
@@ -282,13 +286,17 @@ class Bistim(Magstim):
 		return self._ISI
 	def set_isi(self, value):
 		#Sanity check the ISI
-		value=max(value,1)#TODO: What is the minimum ISI?
-		value=min(value,999)#TODO: What is the maximum ISI?
-		if (value % 1) > 0 :#If the ISI has a decimal value, be sure to set the stimulator to HR mode
-			self.hr_mode=True
+		value=max(value,0.0)#TODO: What is the minimum ISI?
+		value=min(value,999.0)#TODO: What is the maximum ISI?
+		if (value % 1.0) > 0.0 :#If the ISI has a decimal value, be sure to set the stimulator to HR mode
+			if not self.hr_mode:
+				self.hr_mode=True #Note that setting the stimulator to hr_mode should only be done 100's of ms after remote_control
+				time.sleep(0.1)
 			self.q.put({'ISI': int(value*10)})
 		else:
-			self.hr_mode=False
+			if self.hr_mode:
+				self.hr_mode=False
+				time.sleep(0.1)
 			self.q.put({'ISI': int(value)})
 	ISI = property(get_isi, set_isi)
 	

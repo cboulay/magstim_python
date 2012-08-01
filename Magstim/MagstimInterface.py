@@ -34,6 +34,7 @@ class MagThread(threading.Thread):
 					self.alternate_default = True
 					self.queue.put({'default': 0})
 			else:#We got a message
+				time_to_sleep = None
 				key = msg.keys()[0]
 				value = msg[key]
 				if key=='trigger': cmd_string='EHr'
@@ -54,7 +55,9 @@ class MagThread(threading.Thread):
 				elif key=='ISI':
 					cmd_string='C'+str(value).zfill(3)
 					cmd_string=cmd_string+_crc(cmd_string)
-				elif key=='bistim_res': cmd_string='Y@f' if value else 'Z@e'
+				elif key=='bistim_res':
+					cmd_string='Y@f' if value else 'Z@e'
+					time_to_sleep = 0.1
 				elif key=='bistim_mode': cmd_string='X@g'
 						
 				#Rapid2 specific messages	
@@ -70,6 +73,7 @@ class MagThread(threading.Thread):
 				elif key=='shutdown': return
 				
 				self.stimulator._ser_send_command(cmd_string=cmd_string, cmd_hex=cmd_hex, data_hex=data_hex) #Process the input and send the command
+				if time_to_sleep: time.sleep(time_to_sleep)
 				self.queue.task_done()#signals to queue job is done. Maybe the stimulator object should do this?
 				
 #FYI: converting between hex/ascii/bits, often with int in between
@@ -201,7 +205,9 @@ class Magstim(object):
 	# TRIGGER #
 	###########
 	def trigger(self):
-		if not self.trigbox: self.q.put({'trigger': 0}) #Can use serial port to trigger magstim but probably not desired because it has an indeterminate lag.
+		if not self.trigbox:
+			if not self.remocon: self.remocon = True
+			self.q.put({'trigger': 0}) #Can use serial port to trigger magstim but probably not desired because it has an indeterminate lag.
 		else: self.trigbox.trigger() #Tell the trigger box to trigger immediately. No messaging.
 		self._stim_ready = False #Assume the stimulator is not ready because we just triggered.
 

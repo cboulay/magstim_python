@@ -294,7 +294,7 @@ class Bistim(Magstim):
 		#Sanity check the ISI
 		value=max(value,0.0)#TODO: What is the minimum ISI?
 		value=min(value,999.0)#TODO: What is the maximum ISI?
-		if (value % 1.0) > 0.0 :#If the ISI has a decimal value, be sure to set the stimulator to HR mode
+		if (value % 1.0) > 0.0 and value < 100:#If the ISI has a decimal value, be sure to set the stimulator to HR mode
 			if not self.hr_mode:
 				self.hr_mode=True #Note that setting the stimulator to hr_mode should only be done 100's of ms after remote_control
 				time.sleep(0.1)

@@ -161,6 +161,9 @@ class Magstim(object):
 		#the thread will communicate with the stimulator, which will return
 		#a response, then reading the response will attempt to set instance
 		#variables that have yet to be set.
+		
+	def __del__(self):
+		self.q.put({'shutdown': None})
 			
 	################################
 	# PROPERTY GETTERS AND SETTERS #
@@ -276,6 +279,7 @@ class Bistim(Magstim):
 	def __del__(self):
 		self.ISI = 0
 		self.intensityb = 0
+		Magstim.__del__(self)
 		
 	# STIMULUS INTENSITY  B #
 	def get_stimb(self):

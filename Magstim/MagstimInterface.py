@@ -138,8 +138,14 @@ class Magstim(object):
 		self._stim_intensity=0
 		
 		#Initialize the serial port
-		self._ser=serial.Serial(port, timeout=0.1)#initialize the serial port
-		#The serial port is read with s=ser.read(n_bytes) and written to with ...
+		self._ser = serial.Serial()#initialize the serial port
+		self._ser.port = port
+		self._ser.timeout = 0.1
+		try: self._ser.open()
+		except serial.SerialException:
+			self._ser.close()
+			time.sleep(1.0)
+			self._ser.open()
 		
 		self.trigbox=trigbox
 		
@@ -163,7 +169,8 @@ class Magstim(object):
 		#variables that have yet to be set.
 		
 	def __del__(self):
-		self.q.put({'shutdown': None})
+		if hasattr(self,'q'): self.q.put({'shutdown': None})
+		self._ser.flush()
 			
 	################################
 	# PROPERTY GETTERS AND SETTERS #

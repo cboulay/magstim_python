@@ -141,6 +141,7 @@ class Magstim(object):
 		self._ser = serial.Serial()#initialize the serial port
 		self._ser.port = port
 		self._ser.timeout = 0.1
+		self._ser.close()
 		try: self._ser.open()
 		except serial.SerialException:
 			self._ser.close()

@@ -171,7 +171,11 @@ class Magstim(object):
 		
 	def __del__(self):
 		if hasattr(self,'q'): self.q.put({'shutdown': None})
+		self.thread.join()
+		self.armed = False
+		self.remocon = False
 		self._ser.flush()
+		self._ser.close()
 			
 	################################
 	# PROPERTY GETTERS AND SETTERS #
@@ -285,7 +289,7 @@ class Bistim(Magstim):
 		Magstim.__init__(self, port=port, trigbox=trigbox)#Call the super init (which also inits the thread)
 		
 	def __del__(self):
-		self.ISI = 0
+		self.ISI = 0.0
 		self.intensityb = 0
 		Magstim.__del__(self)
 		

@@ -1,7 +1,11 @@
 #Python interface for Magstim TMS devices
 
+## Installation
+I assume you have Python installed and on the system path.
+Install [pyserial](http://pyserial.sourceforge.net/pyserial.html#installation).
+In the magstim-python folder, run `python setup.py install`.
+
 ## Instructions
-Be sure you have pyserial installed.
 
 ```python
 

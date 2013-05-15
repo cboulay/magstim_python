@@ -283,13 +283,13 @@ class Magstim(object):
 # Bistim Class #
 ################
 class Bistim(Magstim):
-    def __init__(self, port='COM4', trigbox=None):
+    def __init__(self, **kwargs):
         #Bistim-specific instance variables.
         self._stim_intensityb = 0 #Intensity of B
         self._ISI = 			0 #Double-pulse interval in msec. Float
         self._HR_mode = 		False	#TODO: Use the device response to update this.
         self._master =			True #In Bistim mode and the device is being used to control the stim timing.
-        Magstim.__init__(self, port=port, trigbox=trigbox)#Call the super init (which also inits the thread)
+        Magstim.__init__(self, **kwargs)#Call the super init (which also inits the thread)
 
     def __del__(self):
         self.ISI = 0.0
@@ -362,12 +362,12 @@ class Bistim(Magstim):
 #!!!!! SEE THE PDF TO MAKE SURE YOUR STIMULUS PARAMETERS
 #!!!!! WILL YIELD EXPECTED RESULTS
 class Rapid2(Magstim):
-    def __init__(self, port='COM4', triggerbox=None):
+    def __init__(self, **kwargs):
         #Rapid2-specific instance variables.
         self._train_dur = 0		#How long the stimulus train lasts
         self._train_freq = 0	#Pulse frequency, in Hz
         self._train_pulses = 0	#Number of pulses in the train
-        Magstim.__init__(self, port=port, triggerbox=triggerbox)#Call the super init (which also inits the thread)
+        Magstim.__init__(self, **kwargs)#Call the super init (which also inits the thread)
 
     # Train Duration #
     def get_train_dur(self): return self._train_dur
